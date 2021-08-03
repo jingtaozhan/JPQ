@@ -6,10 +6,10 @@ We are excited to present our new model, JPQ. It almost matches the uncompressed
 
 ## Comparison with First-Stage Retrieval Baselines
 Here is the effectiveness - index size (log-scale) tradeoff on MSMARCO Passage Ranking. The index size of JPQ is only 1/186 of the size of ColBERT.
-![Comparison with retrieval baselines on Passage Ranking](./figures/all_psg_compr.png)
+<img src="./figures/all_psg_compr.png" width="70%" height="70%">
 
 Here is the effectiveness - index size (log-scale) tradeoff on MSMARCO Document Ranking. The index size of JPQ is only 1/5833 of the size of ColBERT.
-![Comparison with retrieval baselines on Document Ranking](./figures/all_doc_compr.png)
+<img src="./figures/all_doc_compr.png" width="70%" height="70%">
 
 Although existing neural retrieval models, i.e., brute-force DR models and late-interaction models, are more effective than BoW models, they significantly increase the index size by several orders of magnitude. When the indexes of brute-force DR models are compressed by LSH or OPQ, the retrieval effectiveness is severely hurt. Therefore, the results seem to imply that large index sizes are necessary for high-quality ranking.
 
@@ -22,7 +22,7 @@ Results at different trade-off settings shown below.
 
 MS MARCO Passage Ranking   |  MS MARCO Document Ranking
 :-------------------------:|:-------------------------:
-![](./figures/psg_compr.png)  |  ![](./figures/doc_compr.png)
+<img src="./figures/psg_compr.png" width="70%">  | <img src="./figures/doc_compr.png" width="70%"> 
 
 JPQ is still very effective even if the compression ratio is over 100x and outperforms baselines at all tradeoff settings. 
 
