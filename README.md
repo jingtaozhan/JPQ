@@ -57,7 +57,7 @@ To support REPRODUCIBILITY, we copy the RobertaTokenizer source codes from 2.x v
 
 ## Retrieval
 
-You can download download the query encoders and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0) and run the following command to efficiently retrieve documents:
+You can download the query encoders and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0) and run the following command to efficiently retrieve documents:
 ```
 python ./run_retrieval.py \
     --preprocess_dir ./data/doc/preprocess \
@@ -70,7 +70,7 @@ python ./run_retrieval.py \
 ```
 It also has an option `--gpu_search` for fast GPU search.
 
-Run the following code to evaluate on MSMARCO document dataset.
+Run the following command to evaluate the ranking results on MSMARCO document dataset.
 ```bash
 python ./msmarco_eval.py ./data/doc/preprocess/dev-qrel.tsv ./data/doc/m96.dev.tsv 100
 ```
