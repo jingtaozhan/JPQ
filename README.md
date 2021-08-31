@@ -52,7 +52,7 @@ python preprocess.py --data_type 0; python preprocess.py --data_type 1
 ```
 It will create two directories, i.e., `./data/passage/preprocess` and `./data/doc/preprocess`. We map the original qid/pid to new ids, the row numbers in the file. The mapping is saved to `pid2offset.pickle` and `qid2offset.pickle`, and new qrel files (`train/dev/test-qrel.tsv`) are generated. The passages and queries are tokenized and saved in the numpy memmap file. 
 
-Note: JPQ, as long as our [SIGIR'21 models](https://github.com/jingtaozhan/DRhard/graphs/traffic), utilizes Transformers 2.x version to tokenize text. However, when Transformers library updates to 3.x or 4.x versions, the RobertaTokenizer behaves differently. 
+Note: JPQ, as long as our [SIGIR'21 models](https://github.com/jingtaozhan/DRhard), utilizes Transformers 2.x version to tokenize text. However, when Transformers library updates to 3.x or 4.x versions, the RobertaTokenizer behaves differently. 
 To support REPRODUCIBILITY, we copy the RobertaTokenizer source codes from 2.x version to [star_tokenizer.py](https://github.com/jingtaozhan/JPQ/blob/main/star_tokenizer.py). During preprocessing, we use `from star_tokenizer import RobertaTokenizer` instead of `from transformers import RobertaTokenizer`. It is also **necessary** for you to do this if you use our JPQ model on other datasets. 
 
 ## Retrieval
