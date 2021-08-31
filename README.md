@@ -26,7 +26,8 @@ For more details, please refer to our paper. If you find this repo useful, pleas
 ```
 
 ## Data
-Trained models and indexes will be available soon.
+
+You can download trained models and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0). After open this link in your browser, you can see two folder, `doc` and `passage`. They correspond to MSMARCO passage ranking and document ranking. There are also two folders in either of them, `trained_models` and `indexes`. `trained_models` are the trained query encoders, and `indexes` are trained PQ indexes. Note, the `pid` in the index is actually the row number of a passage in the `collection.tsv` file instead of the official pid provided by MS MARCO. Different query encoders and indexes correspond to different compression ratios. For example, the query encoder named `m32.tar.gz` or the index named `OPQ32,IVF1,PQ32x8.index` means 32 bytes per doc, i.e., `768*4/32=96x` compression ratio.
 
 ## Retrieval
 Instructions will be available soon.
