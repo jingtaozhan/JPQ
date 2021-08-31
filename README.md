@@ -33,4 +33,11 @@ JPQ is still very effective even if the compression ratio is over 100x and outpe
 ## Comparison with Non-exhaustive ANNS Baselines
 Non-exhaustive ANNS Baselines do not compress the index. Impressively, JPQ significantly outperforms them given the same query latency. Please refer to our paper for more details. 
 
-Code and trained models will be available soon.
+## Data
+Trained models and indexes will be available soon.
+
+## Retrieval
+Instructions will be available soon.
+
+## Training
+Instructions will be available soon.
