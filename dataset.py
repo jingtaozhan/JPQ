@@ -64,44 +64,16 @@ def pack_tensor_2D(lstlst, default, dtype, length=None):
 
 
 def get_collate_function(max_seq_length):
-    cnt = 0
     def collate_function(batch):
-        nonlocal cnt
-        length = None
-        if cnt < 10:
-            length = max_seq_length
-            cnt += 1
-
         input_ids = [x["input_ids"] for x in batch]
         attention_mask = [x["attention_mask"] for x in batch]
         data = {
             "input_ids": pack_tensor_2D(input_ids, default=1, 
-                dtype=torch.int64, length=length),
+                dtype=torch.int64, length=None),
             "attention_mask": pack_tensor_2D(attention_mask, default=0, 
-                dtype=torch.int64, length=length),
+                dtype=torch.int64, length=None),
         }
         ids = [x['id'] for x in batch]
         return data, ids
     return collate_function  
 
-
-def single_get_collate_function(max_seq_length, padding=False):
-    cnt = 0
-    def collate_function(batch):
-        nonlocal cnt
-        length = None
-        if cnt < 10 or padding:
-            length = max_seq_length
-            cnt += 1
-
-        input_ids = [x["input_ids"] for x in batch]
-        attention_mask = [x["attention_mask"] for x in batch]
-        data = {
-            "input_ids": pack_tensor_2D(input_ids, default=1, 
-                dtype=torch.int64, length=length),
-            "attention_mask": pack_tensor_2D(attention_mask, default=0, 
-                dtype=torch.int64, length=length),
-        }
-        ids = [x['id'] for x in batch]
-        return data, ids
-    return collate_function  

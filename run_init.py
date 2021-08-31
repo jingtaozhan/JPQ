@@ -18,7 +18,7 @@ from torch.utils.data.sampler import SequentialSampler
 from model import RobertaDot
 from dataset import (
     TextTokenIdsCache, SequenceDataset,
-    single_get_collate_function
+    get_collate_function
 )
 logger = logging.Logger(__name__, level=logging.INFO)
 handler = logging.StreamHandler()
@@ -61,7 +61,7 @@ def prediction(model, data_collator, args, test_dataset, embedding_memmap, is_qu
 
 
 def doc_inference(model, args, embedding_size):
-    doc_collator = single_get_collate_function(args.max_doc_length)
+    doc_collator = get_collate_function(args.max_doc_length)
     ids_cache = TextTokenIdsCache(data_dir=args.preprocess_dir, prefix="passages")
     doc_dataset = SequenceDataset(
         ids_cache=ids_cache,
