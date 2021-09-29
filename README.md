@@ -1,6 +1,6 @@
 # JPQ
 
-Repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder and Product Quantization to Improve Retrieval Performance](https://arxiv.org/abs/2108.00644). JPQ greatly improves the efficiency of Dense Retrieval. It is able to compress the index size by 30x with negligible performance loss. It also provides 10x speedup on CPU and 2x speedup on GPU in query latency. 
+Repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder and Product Quantization to Improve Retrieval Performance](https://arxiv.org/abs/2108.00644) ([poster](https://drive.google.com/file/d/1UxTg4sm0ffnZmqVutJzolE5hDRKGzgOQ/view?usp=sharing), [presentation record](https://www.youtube.com/watch?v=kZmEtLtn1PU&t=3s)). JPQ greatly improves the efficiency of Dense Retrieval. It is able to compress the index size by 30x with negligible performance loss. It also provides 10x speedup on CPU and 2x speedup on GPU in query latency. 
 
 Here is the effectiveness - index size (log-scale) tradeoff on MSMARCO Passage Ranking. **In contrast with trading index size for ranking performance, JPQ achieves high ranking effectiveness with a tiny index.** 
 <p align="center">
