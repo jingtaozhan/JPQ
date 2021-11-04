@@ -33,12 +33,13 @@ You can download trained models and indexes from our [dropbox link](https://www.
 
 ## Requirements
 
-To install requirements, run the following commands:
-
-```setup
-git clone git@github.com:jingtaozhan/JPQ.git
-cd JPQ
-python setup.py install
+This repo needs the following libraries (Python 3.x):
+```
+torch == 1.9.0
+transformers == 4.3.3
+faiss-gpu == 1.7.1
+tensorboard==2.5.0
+boto3
 ```
 
 ## Preprocess
