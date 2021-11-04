@@ -2,7 +2,27 @@
 
 * 🔥**News 2021-10: The extension of JPQ, [Learning Discrete Representations via Constrained Clustering for Effective and Efficient Dense Retrieval](https://arxiv.org/abs/2110.05789) \[[code](https://github.com/jingtaozhan/RepCONC)\], was accepted by WSDM'22. It presents RepCONC and achieves state-of-the-art first-stage retrieval effectiveness-efficiency tradeoff. It utilizes constrained clustering to train discrete codes and then incorporates JPQ in the second-stage training.**
 
-Repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder and Product Quantization to Improve Retrieval Performance](https://arxiv.org/abs/2108.00644) ([poster](https://drive.google.com/file/d/1UxTg4sm0ffnZmqVutJzolE5hDRKGzgOQ/view?usp=sharing), [presentation record](https://www.youtube.com/watch?v=kZmEtLtn1PU&t=3s)). JPQ greatly improves the efficiency of Dense Retrieval. It is able to compress the index size by 30x with negligible performance loss. It also provides 10x speedup on CPU and 2x speedup on GPU in query latency. 
+The official repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder and Product Quantization to Improve Retrieval Performance](https://arxiv.org/abs/2108.00644) ([poster](https://drive.google.com/file/d/1UxTg4sm0ffnZmqVutJzolE5hDRKGzgOQ/view?usp=sharing), [presentation record](https://www.youtube.com/watch?v=kZmEtLtn1PU&t=3s)). 
+
+**************************** **Updates** ****************************
+* 11/4: We provide several scripts to help [download model checkpoints](#models-and-indexes) and [evaluation](#retrieval). We also open-source the [ranking results](#ranking-results).
+* 8/31: We released [model checkpoints](#models-and-indexes), [retrieval code](#retrieval), and [training code](#training).
+* 8/8: Our paper has been accepted by CIKM! Please check out the [preprint paper](https://arxiv.org/pdf/2108.00644.pdf).
+
+## Quick Links
+
+  - [Quick Tour](#quick-tour)
+  - [Model Checkpoints](#models-and-indexes)
+  - [Ranking Results](#ranking-results)
+  - [Requirements](#requirements)
+  - [Preprocess Data](#preprocess)
+  - [Evaluate Open-sourced Checkpoints](#retrieval)
+  - [Train JPQ](#training)
+  - [Related Work](#related-work)
+
+## Quick Tour 
+
+JPQ greatly improves the efficiency of Dense Retrieval. It is able to compress the index size by 30x with negligible performance loss. It also provides 10x speedup on CPU and 2x speedup on GPU in query latency. 
 
 Here is the effectiveness - index size (log-scale) tradeoff on MSMARCO Passage Ranking. **In contrast with trading index size for ranking performance, JPQ achieves high ranking effectiveness with a tiny index.** 
 <p align="center">
@@ -29,7 +49,18 @@ For more details, please refer to our paper. If you find this repo useful, pleas
 
 ## Models and Indexes
 
-You can download trained models and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0). After open this link in your browser, you can see two folder, `doc` and `passage`. They correspond to MSMARCO passage ranking and document ranking. There are also two folders in either of them, `trained_models` and `indexes`. `trained_models` are the trained query encoders, and `indexes` are trained PQ indexes. Note, the `pid` in the index is actually the row number of a passage in the `collection.tsv` file instead of the official pid provided by MS MARCO. Different query encoders and indexes correspond to different compression ratios. For example, the query encoder named `m32.tar.gz` or the index named `OPQ32,IVF1,PQ32x8.index` means 32 bytes per doc, i.e., `768*4/32=96x` compression ratio.
+You can download trained models and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0). After open this link in your browser, you can see two folders, `doc` and `passage`. They correspond to MSMARCO passage ranking and document ranking. There are also two folders in either of them, `trained_models` and `indexes`. `trained_models` are the trained query encoders, and `indexes` are trained PQ indexes. Note, the `pid` in the index is actually the row number of a passage in the `collection.tsv` file instead of the official pid provided by MS MARCO. Different query encoders and indexes correspond to different compression ratios. For example, the query encoder named `m32.tar.gz` or the index named `OPQ32,IVF1,PQ32x8.index` means 32 bytes per doc, i.e., `768*4/32=96x` compression ratio.
+
+You can easily download the files using [download_query_encoder.sh](./cmds/download_query_encoder.sh) and [download_index.sh](./cmds/download_index.sh). Just run:
+```
+sh ./cmds/download_query_encoder.sh
+sh ./cmds/download_index.sh
+```
+## Ranking Results
+
+We open-source the ranking results in our dropbox links: [passage rank link](https://www.dropbox.com/sh/gv7vg1hwg1jv9s4/AAAU5v7JyVOtzDI-wuyvqEmKa?dl=0), [document rank link](https://www.dropbox.com/sh/4xo226zy04fnisd/AAA_na4WtVV7eEf2-GFtgXm8a?dl=0).
+`dev` folder and `test` folder correspond to MS MARCO development queries and TREC 2019 DL queries, respectively. 
+In either folder, for each `m` value, we provide two ranking files corresponding to different text-id mapping. The one prefixed with 'official' means that it uses the official MS MARCO / TREC 2019 text-id mapping so you can directly use the official qrel files to evaulate the ranking. The other one uses the mapping generated by our [preprocessing](#preprocess) where we use line offset as id. Both files will give you the same metric number. The files are generated by [run_retrieve.sh](./cmds/run_retrieve.sh). Please see [retrieval section](#retrieval) to know about how to get those ranking results. 
 
 ## Requirements
 
@@ -43,11 +74,11 @@ boto3
 ```
 
 ## Preprocess
-Here are the commands to for preprocessing/tokenization. 
+Here are the commands for preprocessing/tokenization. 
 
 If you do not have MS MARCO dataset, run the following command:
 ```
-bash download_data.sh
+sh ./cmds/download_marco.sh
 ```
 Preprocessing (tokenizing) only requires a simple command:
 ```
@@ -60,31 +91,33 @@ To support REPRODUCIBILITY, we copy the RobertaTokenizer source codes from 2.x v
 
 ## Retrieval
 
-You can download the query encoders and indexes from our [dropbox link](https://www.dropbox.com/sh/miczl0zlj8vy47v/AAAwTNus2g6sABLB4dVH3Adba?dl=0) and run the following command to efficiently retrieve documents:
+This section shows how to retrieve candidates using our [open-sourced models and indexes](#models-and-indexes). 
+Since we use [TREC_EVAL toolkit](https://trec.nist.gov/trec_eval/) for evaluation, please download it and compile:
 ```
-python ./run_retrieval.py \
-    --preprocess_dir ./data/doc/preprocess \
-    --mode dev \
-    --index_path PATH/TO/OPQ96,IVF1,PQ96x8.index \
-    --query_encoder_dir PATH/TO/m96/ \
-    --output_path ./data/doc/m96.dev.tsv \
-    --batch_size 32 \
-    --topk 100
+sh ./cmds/download_trec_eval.sh
 ```
-It also has an option `--gpu_search` for fast GPU search.
 
-Run the following command to evaluate the ranking results on MSMARCO document dataset.
-```bash
-python ./msmarco_eval.py ./data/doc/preprocess/dev-qrel.tsv ./data/doc/m96.dev.tsv 100
+We show how to retrieve candidates and evaluate results in [run_retrieve.sh](cmds/run_retrieve.sh). Just run the command
 ```
-You will get
-```bash
-Eval Started
-#####################
-MRR @100: 0.4008114949611788
-QueriesRanked: 5193
-#####################
+sh cmds/run_retrieve.sh
 ```
+Then you are expected to get the results reported in our paper. 
+
+In [run_retrieve.sh](cmds/run_retrieve.sh), it calls [run_retrieval.py](./run_retrieval.py). 
+Arguments for this evaluation script are as follows,
+* `--preprocess_dir`: preprocess dir
+    * `./data/passage/preprocess`: default dir for passage preprocessing.
+    * `./data/doc/preprocess`: default dir for document preprocessing.
+* `--mode`: Evaluation mode
+    * `dev` run retrieval for msmarco development queries.
+    * `test`: run retrieval for TREC 2019 DL Track queries.
+* `--index_path`: Index path.
+* `--query_encoder_dir`:  Query encoder dir, which involves `config.json` and `pytorch_model.bin`.
+* `--output_path`:  Output ranking file path, formatted following msmarco guideline (qid\tpid\trank) for dev set or TREC guideline for test set.
+* `--max_query_length`: Max query length, default: 32.
+* `--batch_size`: Encoding and retrieval batch size at each iteration.
+* `--topk`: Retrieve topk passages/documents.
+* `--gpu_search`: Whether to use gpu for embedding search.
 
 ## Training
 
@@ -116,6 +149,10 @@ python run_train.py \
 `--gpu_search` is optional for fast gpu search during training. `lambda_cut` should be set to 200 for passage ranking task. `centroid_lr` is different for different compression ratios. 
 Let M be the number of subvectors. `centroid_lr` equals to 5e-6 for  `M = 16/24`, 2e−5 for `M = 32`, and 1e−4 for `M = 48/64/96`. The number of training epochs is set to 6. In fact, the performance is already quite satisfying after 1 or 2 epochs. Each epoch costs less than 2 hours on our machine. 
 
+## Related Work
 
+* **SIGIR 2021: [Optimizing Dense Retrieval Model Training with Hard Negatives](https://arxiv.org/abs/2104.08051) \[[code](https://github.com/jingtaozhan/DRhard)\]: It provides theoretical analysis on different negative sampling strategies and greatly improves the effectiveness of Dense Retrieval with hard negative sampling. The proposed dynamic hard negative sampling is adopted by JPQ.**
+
+* **ARXIV 2020: [RepBERT: Contextualized Text Embeddings for First-Stage Retrieval](https://arxiv.org/pdf/2006.15498.pdf) \[[code](https://github.com/jingtaozhan/RepBERT-Index)\]: It is one of the pioneer studies about Dense Retrieval.**
 
 

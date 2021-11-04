@@ -1,6 +1,8 @@
-mkdir data
-mkdir data/passage
-mkdir data/passage/dataset
+set -e 
+
+mkdir -p data
+mkdir -p data/passage
+mkdir -p data/passage/dataset
 cd data/passage/dataset
 
 # download MSMARCO passage data
@@ -13,8 +15,8 @@ gunzip ./msmarco-test2019-queries.tsv.gz
 wget https://trec.nist.gov/data/deep/2019qrels-pass.txt
 
 cd ../../../
-mkdir data/doc
-mkdir data/doc/dataset
+mkdir -p data/doc
+mkdir -p data/doc/dataset
 cd data/doc/dataset
 
 # download MSMARCO doc data

@@ -37,7 +37,7 @@ def load_index(index_path, use_cuda, faiss_gpu_index):
             co.useFloat16 = False
         logger.info(f"subvec_num: {subvec_num}; useFloat16: {co.useFloat16}")
         if co.useFloat16:
-            logger.warning("If the number of subvectors >= 56 and gpu search is turned on, Faiss uses float16 and therefore there is very little performance loss. You can use cpu search to obtain the best ranking effectiveness")
+            logger.warning("If the number of subvectors >= 56 and gpu search is turned on, Faiss uses float16 and therefore there is a little performance loss. You can use cpu search to obtain the best ranking effectiveness")
         index = faiss.index_cpu_to_gpu(res, faiss_gpu_index, index, co)
     return index
 
@@ -66,16 +66,17 @@ def query_inference(model, index, args):
 
     model.eval()
 
-    all_search_results = []
+    all_search_results_pids, all_search_results_scores = [], []
     for inputs, ids in tqdm(dataloader):
         for k, v in inputs.items():
             if isinstance(v, torch.Tensor):
                 inputs[k] = v.to(args.device)
         with torch.no_grad():
             query_embeds = model(is_query=True, **inputs).detach().cpu().numpy()
-            batch_results = index.search(query_embeds, args.topk)[1]
-            all_search_results.extend(batch_results.tolist())
-    return all_search_results
+            batch_results_scores, batch_results_pids = index.search(query_embeds, args.topk)
+            all_search_results_pids.extend(batch_results_pids.tolist())
+            all_search_results_scores.extend(batch_results_scores.tolist())
+    return all_search_results_scores, all_search_results_pids
 
 
 def main():
@@ -94,8 +95,6 @@ def main():
     args.device = torch.device("cuda:0")
     args.n_gpu = 1
     
-    logger.info(f"Evaluation parameters {args}")
-
     config_class, model_class = RobertaConfig, RobertaDot
     
     config = config_class.from_pretrained(args.query_encoder_dir)
@@ -103,13 +102,20 @@ def main():
     index = load_index(args.index_path, use_cuda=args.gpu_search, faiss_gpu_index=0)
     if not args.gpu_search:
         faiss.omp_set_num_threads(32)
-    all_search_results = query_inference(model, index, args)
+    all_search_results_scores, all_search_results_pids = query_inference(model, index, args)
 
+    os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
+    
     with open(args.output_path, 'w') as outputfile:
-        for qid, pids in enumerate(all_search_results):
-            for idx, pid in enumerate(pids):
+        for qid, (scores, pids) in enumerate(zip(all_search_results_scores, all_search_results_pids)):
+            for idx, (score, pid) in enumerate(zip(scores, pids)):
                 rank = idx+1
-                outputfile.write(f"{qid}\t{pid}\t{rank}\n")
+                if args.mode == "dev":
+                    outputfile.write(f"{qid}\t{pid}\t{rank}\n")
+                else:
+                    assert args.mode == "test" # TREC Test
+                    index_name = os.path.basename(args.index_path)
+                    outputfile.write(f"{qid} Q0 {pid} {rank} {score} JPQ-{index_name}\n")
 
 
 if __name__ == "__main__":
