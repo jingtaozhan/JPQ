@@ -39,3 +39,4 @@ wget https://msmarco.blob.core.windows.net/msmarcoranking/msmarco-docdev-qrels.t
 gunzip msmarco-docdev-qrels.tsv.gz
 
 wget https://msmarco.blob.core.windows.net/msmarcoranking/docleaderboard-queries.tsv.gz
+gunzip docleaderboard-queries.tsv.gz
