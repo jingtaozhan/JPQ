@@ -5,8 +5,8 @@ while run_retrieval.py uses pre-tokenized queries and only runs retrieval.
 """
 import os
 from urllib import parse
-import torch
 import faiss
+import torch
 import pickle
 import logging
 import argparse
@@ -115,8 +115,13 @@ def main():
     
     args = parser.parse_args()
 
-    args.device = torch.device("cuda:0")
-    args.n_gpu = 1
+
+    if args.gpu_search:
+        args.device = torch.device("cuda:0")
+        args.n_gpu = 1
+    else:
+        args.device = torch.device("cpu")
+        args.n_gpu = 0
     
     config_class, model_class = RobertaConfig, RobertaDot
     
@@ -128,11 +133,12 @@ def main():
     all_query_ids, all_search_results_scores, all_search_results_pids = \
         query_inference(model, index, args)
 
-    pid2offset = pickle.load(open(args.pid2offset_path, 'rb'))
     if args.dataset == "doc":
+        pid2offset = pickle.load(open(args.pid2offset_path, 'rb'))
         offset2pid = {v:f"D{k}" for k, v in pid2offset.items()}
     else:
         assert args.dataset == "passage"
+        pid2offset = {i:i for i in range(8841823)}
         offset2pid = {v:k for k, v in pid2offset.items()}
 
     os.makedirs(os.path.dirname(args.output_path), exist_ok=True)
