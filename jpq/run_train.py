@@ -14,8 +14,8 @@ from torch.utils.data import DataLoader, RandomSampler
 from transformers import (AdamW, get_linear_schedule_with_warmup,
     RobertaConfig)
 
-from dataset import TextTokenIdsCache, SequenceDataset, pack_tensor_2D
-from model import RobertaDot
+from jpq.dataset import TextTokenIdsCache, SequenceDataset, pack_tensor_2D
+from jpq.model import RobertaDot
 
 logger = logging.Logger(__name__, level=logging.INFO)
 handler = logging.StreamHandler()

@@ -6,7 +6,7 @@ import subprocess
 import multiprocessing
 import numpy as np
 from tqdm import tqdm
-from star_tokenizer import RobertaTokenizer
+from jpq.star_tokenizer import RobertaTokenizer
 
 def pad_input_ids(input_ids, max_length,
                   pad_on_left=False,

@@ -79,7 +79,7 @@ sh ./cmds/download_marco.sh
 ```
 Preprocessing (tokenizing) only requires a simple command:
 ```
-python preprocess.py --data_type 0; python preprocess.py --data_type 1
+python -m jpq.preprocess --data_type 0; python -m jpq.preprocess --data_type 1
 ```
 It will create two directories, i.e., `./data/passage/preprocess` and `./data/doc/preprocess`. We map the original qid/pid to new ids, the row numbers in the file. The mapping is saved to `pid2offset.pickle` and `qid2offset.pickle`, and new qrel files (`train/dev/test-qrel.tsv`) are generated. The passages and queries are tokenized and saved in the numpy memmap file. 
 
@@ -128,7 +128,7 @@ Run this shell script for retrieval and evaluation:
 ```
 sh ./cmds/run_tokenize_retrieve.sh
 ```
-It calls [tokenize_retrieve.py](tokenize_retrieve.py). Arguments for this evaluation script are as follows,
+It calls [tokenize_retrieve](jpq/tokenize_retrieve.py). Arguments for this evaluation script are as follows,
 * `--query_file_path`: Query file with TREC format.  
 * `--index_path`: Index path.
 * `--query_encoder_dir`:  Query encoder dir, which involves `config.json` and `pytorch_model.bin`.
@@ -146,7 +146,7 @@ JPQ is initialized by [STAR](https://github.com/jingtaozhan/DRhard). STAR traine
 
 First, use STAR to encode the corpus and run OPQ to initialize the index. For example, on document ranking task, please run:
 ```bash
-python ./run_init.py \
+python -m jpq.run_init \
   --preprocess_dir ./data/doc/preprocess/ \
   --model_dir ./data/doc/star \
   --max_doc_length 512 \
@@ -157,7 +157,7 @@ On passage ranking task, you can set the `max_doc_length` to 256 for faster infe
 
 Now you can train the query encoder and PQ index. For example, on document ranking task, the command is 
 ```bash
-python run_train.py \
+python -m jpq.run_train \
     --preprocess_dir ./data/doc/preprocess \
     --model_save_dir ./data/doc/train/m96/models \
     --log_dir ./data/doc/train/m96/log \

@@ -28,7 +28,7 @@ for year in "2020" "2019"  ; do
                 search_option="--gpu_search"
             fi
 
-            python ./tokenize_retrieve.py \
+            python -m jpq.tokenize_retrieve \
                 --query_file_path $query_file_path \
                 --index_path $index_path \
                 --query_encoder_dir $query_encoder_path \

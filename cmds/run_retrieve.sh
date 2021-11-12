@@ -19,7 +19,7 @@ for mode in "dev" "test" ; do
             if [ $m -ge 56 ]
             then
                 echo "Use cpu search"
-                python ./run_retrieval.py \
+                python -m jpq.run_retrieval \
                 --preprocess_dir $preprocess_dir \
                 --index_path $index_path \
                 --mode $mode \
@@ -28,7 +28,7 @@ for mode in "dev" "test" ; do
                 --batch_size $batch_size 
             else 
                 echo "Use gpu searchp"
-                python ./run_retrieval.py \
+                python -m jpq.run_retrieval \
                 --preprocess_dir $preprocess_dir \
                 --index_path $index_path \
                 --mode $mode \
@@ -55,7 +55,7 @@ for mode in "dev" "test" ; do
             
             echo "Convert qids and pids to official ids"
             official_id_rank_path=./data/$dataset/run_retrieve/${mode}/official.run.${mode}.m${m}.rank
-            python ./cvt_back.py \
+            python -m jpq.cvt_back \
                 --input_path $output_path \
                 --preprocess_dir $preprocess_dir \
                 --mode $mode \

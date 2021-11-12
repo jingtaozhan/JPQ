@@ -8,12 +8,12 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from transformers import RobertaConfig
-from model import RobertaDot
+from jpq.model import RobertaDot
 from timeit import default_timer as timer
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
-from dataset import TextTokenIdsCache, SequenceDataset, get_collate_function
+from jpq.dataset import TextTokenIdsCache, SequenceDataset, get_collate_function
 
 logger = logging.Logger(__name__, level=logging.INFO)
 handler = logging.StreamHandler()

@@ -15,8 +15,8 @@ from transformers import RobertaConfig
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
-from model import RobertaDot
-from dataset import (
+from jpq.model import RobertaDot
+from jpq.dataset import (
     TextTokenIdsCache, SequenceDataset,
     get_collate_function
 )
