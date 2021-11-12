@@ -17,10 +17,10 @@ setup(
     packages=['jpq'],
     long_description=readme,
     install_requires=[
-        'torch==1.9.0',
-        'transformers == 4.3.3',
+        'torch >= 1.9.0',
+        'transformers >= 4.3.3',
         #'faiss-gpu == 1.7.1',#faiss should be installed manually
-        'tensorboard==2.5.0',
+        'tensorboard >= 2.5.0',
         'boto3'
     ],
 )
