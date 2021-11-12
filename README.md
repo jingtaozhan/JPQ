@@ -1,12 +1,11 @@
 # JPQ
 
-* 🔥**News 2021-10: The extension of JPQ, [Learning Discrete Representations via Constrained Clustering for Effective and Efficient Dense Retrieval](https://arxiv.org/abs/2110.05789) \[[code](https://github.com/jingtaozhan/RepCONC)\], was accepted by WSDM'22. It presents RepCONC and achieves state-of-the-art first-stage retrieval effectiveness-efficiency tradeoff. It utilizes constrained clustering to train discrete codes and then incorporates JPQ in the second-stage training.**
-
 The official repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder and Product Quantization to Improve Retrieval Performance](https://arxiv.org/abs/2108.00644) ([poster](https://drive.google.com/file/d/1UxTg4sm0ffnZmqVutJzolE5hDRKGzgOQ/view?usp=sharing), [presentation record](https://www.youtube.com/watch?v=kZmEtLtn1PU&t=3s)). 
 
 **************************** **Updates** ****************************
-* 11/9: We provide a script to support ["on-the-fly" query tokenization](tokenize_retrieve.py) and open-source the [ranking results on TREC 2020 queries](#ranking-results), which are not reported in the paper. See [TREC2020 Retrieval](#trec-2020-retrieval) about how to use this script to retrieve for TREC 2020 queries.
-* 11/4: We provide several scripts to help [download model checkpoints](#models-and-indexes) and [evaluation](#retrieval). We also open-source the [ranking results](#ranking-results).
+* 11/13: We released code to evaluate [zero-shot retrieval performance](#zero-shot-retrieval) of JPQ and used BEIR benchmark as an example. The code can be used for other datasets with the same format.
+* 11/9: We provided [a script](jpq/tokenize_retrieve.py) to support ["on-the-fly" query tokenization](#trec-2020-retrieval) and open-sourced the [ranking results for TREC 2020 queries](#ranking-results).
+* 11/4: We provided several scripts to help [download model checkpoints](#models-and-indexes) and [evaluation](#retrieval). We also open-sourced the [ranking results](#ranking-results).
 * 8/31: We released [model checkpoints](#models-and-indexes), [retrieval code](#retrieval), and [training code](#training).
 * 8/8: Our paper has been accepted by CIKM! Please check out the [preprint paper](https://arxiv.org/pdf/2108.00644.pdf).
 
@@ -17,7 +16,10 @@ The official repo for our CIKM'21 Full paper, [Jointly Optimizing Query Encoder 
   - [Ranking Results](#ranking-results)
   - [Requirements](#requirements)
   - [Preprocess Data](#preprocess)
-  - [Evaluate Open-sourced Checkpoints](#retrieval)
+  - [Evaluate Open-sourced Checkpoints](#evaluate-open-sourced-checkpoints)
+    - [TREC 2019 Retrieval](#trec-2019-retrieval)
+    - [TREC 2020 Retrieval](#trec-2020-retrieval)
+    - [Zero-shot Retrieval (BEIR)](#zero-shot-retrieval)
   - [Train JPQ](#training)
   - [Citation](#citation)
   - [Related Work](#related-work)
@@ -63,10 +65,10 @@ We additionally released the ranking results for queries from TREC 2020 Deep Lea
 
 This repo needs the following libraries (Python 3.x):
 ```
-torch == 1.9.0
-transformers == 4.3.3
+torch >= 1.9.0
+transformers >= 4.3.3
 faiss-gpu == 1.7.1
-tensorboard==2.5.0
+tensorboard >= 2.5.0
 boto3
 ```
 
@@ -84,11 +86,12 @@ python -m jpq.preprocess --data_type 0; python -m jpq.preprocess --data_type 1
 It will create two directories, i.e., `./data/passage/preprocess` and `./data/doc/preprocess`. We map the original qid/pid to new ids, the row numbers in the file. The mapping is saved to `pid2offset.pickle` and `qid2offset.pickle`, and new qrel files (`train/dev/test-qrel.tsv`) are generated. The passages and queries are tokenized and saved in the numpy memmap file. 
 
 Note: JPQ, as long as our [SIGIR'21 models](https://github.com/jingtaozhan/DRhard), utilizes Transformers 2.x version to tokenize text. However, when Transformers library updates to 3.x or 4.x versions, the RobertaTokenizer behaves differently. 
-To support REPRODUCIBILITY, we copy the RobertaTokenizer source codes from 2.x version to [star_tokenizer.py](https://github.com/jingtaozhan/JPQ/blob/main/star_tokenizer.py). During preprocessing, we use `from star_tokenizer import RobertaTokenizer` instead of `from transformers import RobertaTokenizer`. It is also **necessary** for you to do this if you use our JPQ model on other datasets. 
+To support REPRODUCIBILITY, we copy the RobertaTokenizer source codes from 2.x version to [star_tokenizer.py](jpq/star_tokenizer.py). During preprocessing, we use `from star_tokenizer import RobertaTokenizer` instead of `from transformers import RobertaTokenizer`. It is also **necessary** for you to do this if you use our JPQ model on other datasets. 
 
-## Retrieval
+## Evaluate Open-sourced Checkpoints
+### TREC 2019 Retrieval
 
-This section shows how to retrieve candidates using our [open-sourced models and indexes](#models-and-indexes). 
+Our paper utilizes datasets from TREC 2019 Deep Learning track. This section shows how to reproduce the reported results using our [open-sourced models and indexes](#models-and-indexes). 
 Since we use [TREC_EVAL toolkit](https://trec.nist.gov/trec_eval/) for evaluation, please download it and compile:
 ```
 sh ./cmds/download_trec_eval.sh
@@ -100,7 +103,7 @@ sh cmds/run_retrieve.sh
 ```
 Then you are expected to get the results reported in our paper. 
 
-In [run_retrieve.sh](cmds/run_retrieve.sh), it calls [run_retrieval.py](./run_retrieval.py). 
+In [run_retrieve.sh](cmds/run_retrieve.sh), it calls [run_retrieval.py](jpq/run_retrieval.py). 
 Arguments for this evaluation script are as follows,
 * `--preprocess_dir`: preprocess dir
     * `./data/passage/preprocess`: default dir for passage preprocessing.
@@ -116,9 +119,9 @@ Arguments for this evaluation script are as follows,
 * `--topk`: Retrieve topk passages/documents.
 * `--gpu_search`: Whether to use gpu for embedding search.
 
-## TREC 2020 Retrieval
+### TREC 2020 Retrieval
 
-Here we provide instructions on how to retrieve candidates for TREC 2020 queries. We use this [retrieval script](tokenize_retrieve.py), which supports on-the-fly query tokenization. 
+Here we provide instructions on how to retrieve candidates for TREC 2020 queries, which is not included in the paper. We use this [retrieval script](jpq/tokenize_retrieve.py), which supports **on-the-fly** query tokenization. 
 
 Please download TREC 2020 queries:
 ```
@@ -139,6 +142,41 @@ It calls [tokenize_retrieve](jpq/tokenize_retrieve.py). Arguments for this evalu
 * `--batch_size`: Encoding and retrieval batch size at each iteration.
 * `--topk`: Retrieve topk passages/documents.
 * `--gpu_search`: Whether to use gpu for embedding search.
+
+### Zero-shot Retrieval 
+
+This section shows how to use JPQ for other datasets in a zero-shot fashion.
+Please download the JPQ dual-encoders by running 
+```bash
+sh ./cmds/download_jpq_encoders.sh
+```
+In fact, these query encoders are equivalent to the data in [Models and Indexes](#models-and-indexes), and the document encoder is equivalent to [STAR](https://github.com/jingtaozhan/DRhard) model. The difference is that they are objects of class [JPQTower](jpq/model.py#L47), which involves the encoding parameters and PQ index parameters. Thanks to it, we can easily adapt JPQ to other datasets in a zero-shot fashion.
+
+Note, the downloaded dual-encoders are trained on MS MARCO passage ranking task. We do not use ones trained on document ranking task because they are trained with URL, which is often not available in other datasets. 
+
+We use [BEIR](https://github.com/UKPLab/beir) as an example because it involves a wide range of datasets. For your own dataset, you only need to format it in the same way as BEIR and you are good to go.
+Now, we show how to use JPQ for TREC-Covid dataset. Run
+```bash
+sh ./cmds/run_eval_beir.sh trec-covid
+```
+You can also replace trec-covid with other datasets, such as nq. 
+The script calls [eval_beir.py](jpq/eval_beir.py). Arguments are as follows,
+* `--dataset`: Dataset name in BEIR .  
+* `--beir_data_root`: Where to save BEIR dataset.
+* `--query_encoder`: Path to JPQ query encoder.
+* `--doc_encoder`: Path to JPQ document encoder.
+* `--split`: test/dev/train.
+* `--encode_batch_size`: Batch size, default: 64.
+* `--output_index_path`: Optional, where to save the compact index. If the pointed file exists, it will be loaded to save the corpus-encoding time.
+* `--output_ranking_path`: Optional, where to save the retrieval results.
+
+Here are the NDCG@10 on several datasets when M=96, i.e., 32x compression ratio:
+Dataset    | TREC-COVID | NFCorpus | NQ | HotpotQA | FiQA-2018 | ArguAna | Touche-2020 | Quora | DBPedia | SCIDOCS | FEVER | Climate-FEVER | SciFact	
+:----:|:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----: |:-----:
+ANCE (Uncompressed) |  0.654 | 0.237 | 0.446 | 0.456 | 0.295 | 0.415 | 0.284 | n.a. | 0.281 | 0.122 | 0.669 | 0.198 | 0.507
+JPQ (32x Compression) |  0.636 | 0.272 | 0.449 | 0.450 | 0.286 | 0.429 | 0.200 | 0.853 | 0.304 | 0.120 | 0.636 | 0.194 | 0.531
+
+Even though JPQ compresses the index by 32x, it achieves ranking performance on par with or even better than ANCE, a competitive uncompressed Dense Retrieval model. 
 
 ## Training
 
@@ -193,6 +231,8 @@ series = {CIKM '21}
 ```
 
 ## Related Work
+
+* 🔥**WSDM 2022: [Learning Discrete Representations via Constrained Clustering for Effective and Efficient Dense Retrieval](https://arxiv.org/abs/2110.05789) \[[code](https://github.com/jingtaozhan/RepCONC)\]: It presents RepCONC and achieves state-of-the-art first-stage retrieval effectiveness-efficiency tradeoff. It utilizes constrained clustering to train discrete codes and then incorporates JPQ in the second-stage training.**
 
 * **SIGIR 2021: [Optimizing Dense Retrieval Model Training with Hard Negatives](https://arxiv.org/abs/2104.08051) \[[code](https://github.com/jingtaozhan/DRhard)\]: It provides theoretical analysis on different negative sampling strategies and greatly improves the effectiveness of Dense Retrieval with hard negative sampling. The proposed dynamic hard negative sampling is adopted by JPQ.**
 
