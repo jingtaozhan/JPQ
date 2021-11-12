@@ -4,7 +4,6 @@ This script tokenizes queries and then runs retrieval,
 while run_retrieval.py uses pre-tokenized queries and only runs retrieval.
 """
 import os
-from urllib import parse
 import faiss
 import torch
 import pickle
@@ -13,15 +12,15 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from transformers import RobertaConfig
-from model import RobertaDot
 from timeit import default_timer as timer
 from torch.utils.data import Dataset
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
-from star_tokenizer import RobertaTokenizer
-from dataset import TextTokenIdsCache, SequenceDataset, get_collate_function
-from run_retrieval import load_index
+from jpq.model import RobertaDot
+from jpq.star_tokenizer import RobertaTokenizer
+from jpq.dataset import get_collate_function
+from jpq.run_retrieval import load_index
 
 
 class TRECQueryDataset(Dataset):
@@ -87,7 +86,7 @@ def query_inference(model, index, args):
                 inputs[k] = v.to(args.device)
         all_query_ids.extend(ids)
         with torch.no_grad():
-            query_embeds = model(is_query=True, **inputs).detach().cpu().numpy()
+            query_embeds = model(**inputs).detach().cpu().numpy()
             batch_results_scores, batch_results_pids = index.search(query_embeds, args.topk)
             all_search_results_pids.extend(batch_results_pids.tolist())
             all_search_results_scores.extend(batch_results_scores.tolist())

@@ -8,11 +8,11 @@ import argparse
 import numpy as np
 from tqdm import tqdm
 from transformers import RobertaConfig
-from jpq.model import RobertaDot
 from timeit import default_timer as timer
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.sampler import SequentialSampler
 
+from jpq.model import RobertaDot
 from jpq.dataset import TextTokenIdsCache, SequenceDataset, get_collate_function
 
 logger = logging.Logger(__name__, level=logging.INFO)
@@ -72,7 +72,7 @@ def query_inference(model, index, args):
             if isinstance(v, torch.Tensor):
                 inputs[k] = v.to(args.device)
         with torch.no_grad():
-            query_embeds = model(is_query=True, **inputs).detach().cpu().numpy()
+            query_embeds = model(**inputs).detach().cpu().numpy()
             batch_results_scores, batch_results_pids = index.search(query_embeds, args.topk)
             all_search_results_pids.extend(batch_results_pids.tolist())
             all_search_results_scores.extend(batch_results_scores.tolist())

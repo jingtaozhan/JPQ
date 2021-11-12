@@ -26,7 +26,7 @@ formatter = logging.Formatter('%(asctime)s-%(name)s-%(levelname)s- %(message)s')
 handler.setFormatter(formatter)
 logger.addHandler(handler)
 
-def prediction(model, data_collator, args, test_dataset, embedding_memmap, is_query):
+def prediction(model, data_collator, args, test_dataset, embedding_memmap):
     os.makedirs(args.output_dir, exist_ok=True)
     test_dataloader = DataLoader(
         test_dataset,
@@ -52,7 +52,7 @@ def prediction(model, data_collator, args, test_dataset, embedding_memmap, is_qu
             if isinstance(v, torch.Tensor):
                 inputs[k] = v.to(args.device)
         with torch.no_grad():
-            logits = model(is_query=is_query, **inputs).detach().cpu().numpy()
+            logits = model(**inputs).detach().cpu().numpy()
         write_size = len(logits)
         assert write_size == len(ids)
         embedding_memmap[write_index:write_index+write_size] = logits
@@ -72,7 +72,7 @@ def doc_inference(model, args, embedding_size):
         dtype=np.float32, mode="w+", shape=(len(doc_dataset), embedding_size))
     try:
         prediction(model, doc_collator, args,
-            doc_dataset, doc_memmap, is_query=False
+            doc_dataset, doc_memmap
         )
     except:
         subprocess.check_call(["rm", args.doc_embed_path])

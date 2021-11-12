@@ -202,8 +202,7 @@ def train(args, model, pq_codes, centroid_embeds, opq_transform, opq_index):
             model.train()            
             query_embeddings = model(
                 input_ids=batch["input_ids"],
-                attention_mask=batch["attention_mask"], 
-                is_query=True)
+                attention_mask=batch["attention_mask"])
             
             if args.gpu_search:
                 batch_neighbors = gpu_index.search(
