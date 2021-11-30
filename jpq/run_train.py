@@ -255,10 +255,11 @@ def train(args, model, pq_codes, centroid_embeds, opq_transform, opq_index):
     # as well as the filename of the query_encoder model, and its actual instance
     return (
         os.path.join(args.model_save_dir, f'epoch-{epoch_idx+1}', 
-                os.path.basename(args.init_index_path))),
+                os.path.basename(args.init_index_path)),
         opq_index,
-        os.path.join(args.model_save_dir, f'epoch-{epoch_idx+1}')
-        model)
+        os.path.join(args.model_save_dir, f'epoch-{epoch_idx+1}'),
+        model
+        )
         
 
 
