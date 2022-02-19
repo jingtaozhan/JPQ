@@ -82,7 +82,7 @@ def query_inference(model, index, args):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--preprocess_dir", type=str, required=True)
-    parser.add_argument("--mode", type=str, choices=["dev", "test"], required=True)
+    parser.add_argument("--mode", type=str, choices=["train", "dev", "test"], required=True)
     parser.add_argument("--index_path", type=str, required=True)
     parser.add_argument("--query_encoder_dir", type=str, required=True)
     parser.add_argument("--output_path", type=str, required=True)
@@ -110,7 +110,7 @@ def main():
         for qid, (scores, pids) in enumerate(zip(all_search_results_scores, all_search_results_pids)):
             for idx, (score, pid) in enumerate(zip(scores, pids)):
                 rank = idx+1
-                if args.mode == "dev":
+                if args.mode in ["dev", "train"]:
                     outputfile.write(f"{qid}\t{pid}\t{rank}\n")
                 else:
                     assert args.mode == "test" # TREC Test
